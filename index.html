@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Data Display</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        .data-item {
+            margin-bottom: 10px;
+        }
+        .data-item span {
+            font-weight: bold;
+        }
+        .address-container {
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group textarea {
+            padding: 10px;
+            width: calc(100% - 22px);
+            height: 100px;
+            margin-bottom: 10px;
+        }
+        .form-group button {
+            padding: 10px;
+        }
+        #credits {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: #555;
+        }
+        #credits a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        #credits a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>KZ Mass Check</h1>
+        <div class="form-group">
+            <textarea id="evmAddresses" placeholder="Enter EVM Addresses, one per line"></textarea>
+            <button onclick="addAddresses()">Add Addresses</button>
+        </div>
+        <div id="address-container"></div>
+    </div>
+
+    <div id="credits">
+        <p>Developed by Shidiq <a href="https://twitter.com/shdqm0" target="_blank">Twitter</a> and <a href="https://github.com/shidiqmuh0" target="_blank">GitHub</a></p>
+    </div>
+
+    <script>
+        let addresses = [];
+
+        async function fetchData(address) {
+            try {
+                const response = await fetch(`https://api.kzco.in/api/kz/user/${address}`);
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                return null;
+            }
+        }
+
+        function createDataItem(label, value) {
+            const div = document.createElement('div');
+            div.classList.add('data-item');
+            div.innerHTML = `${label}: <span>${value}</span>`;
+            return div;
+        }
+
+        async function displayData() {
+            const container = document.getElementById('address-container');
+            container.innerHTML = ''; // Clear previous results
+            for (const address of addresses) {
+                const data = await fetchData(address);
+                if (data) {
+                    const addressDiv = document.createElement('div');
+                    addressDiv.classList.add('address-container');
+                    addressDiv.appendChild(createDataItem('EVM Address', address));
+                    addressDiv.appendChild(createDataItem('Point Balance', data.pointBalance));
+                    addressDiv.appendChild(createDataItem('Point Value', data.pointValue));
+                    addressDiv.appendChild(createDataItem('Convertable Point', data.convertablePoint));
+                    addressDiv.appendChild(createDataItem('Total Stake Hold', data.totalStakeHold));
+                    container.appendChild(addressDiv);
+                }
+            }
+        }
+
+        function addAddresses() {
+            const evmAddressesInput = document.getElementById('evmAddresses');
+            const newAddresses = evmAddressesInput.value.split('\n').map(addr => addr.trim()).filter(addr => addr && !addresses.includes(addr));
+            addresses = addresses.concat(newAddresses);
+            evmAddressesInput.value = ''; // Clear input field
+            displayData();
+        }
+    </script>
+</body>
+</html>
