@@ -38,6 +38,10 @@
         .form-group button {
             padding: 10px;
         }
+        #total-points {
+            margin-top: 20px;
+            font-weight: bold;
+        }
         #credits {
             text-align: center;
             margin-top: 20px;
@@ -61,6 +65,12 @@
             <button onclick="addAddresses()">Add Addresses</button>
         </div>
         <div id="address-container"></div>
+        <div id="total-points">
+            <p>Point Balance: 0.00</p>
+            <p>Point Value: 0.00</p>
+            <p>Convertable Point: 0.00</p>
+            <p>Total Stake Hold: 0.00</p>
+        </div>
     </div>
 
     <div id="credits">
@@ -69,6 +79,10 @@
 
     <script>
         let addresses = [];
+        let totalPointBalance = 0;
+        let totalPointValue = 0;
+        let totalConvertablePoint = 0;
+        let totalStakeHold = 0;
 
         async function fetchData(address) {
             try {
@@ -91,6 +105,11 @@
         async function displayData() {
             const container = document.getElementById('address-container');
             container.innerHTML = ''; // Clear previous results
+            totalPointBalance = 0; // Reset totals
+            totalPointValue = 0;
+            totalConvertablePoint = 0;
+            totalStakeHold = 0;
+
             for (const address of addresses) {
                 const data = await fetchData(address);
                 if (data) {
@@ -102,8 +121,20 @@
                     addressDiv.appendChild(createDataItem('Convertable Point', data.convertablePoint));
                     addressDiv.appendChild(createDataItem('Total Stake Hold', data.totalStakeHold));
                     container.appendChild(addressDiv);
+
+                    // Add to totals
+                    totalPointBalance += parseFloat(data.pointBalance);
+                    totalPointValue += parseFloat(data.pointValue);
+                    totalConvertablePoint += parseFloat(data.convertablePoint);
+                    totalStakeHold += parseFloat(data.totalStakeHold);
                 }
             }
+            document.getElementById('total-points').innerHTML = `
+                <p>Point Balance: ${totalPointBalance.toFixed(2)}</p>
+                <p>Point Value: ${totalPointValue.toFixed(2)}</p>
+                <p>Convertable Point: ${totalConvertablePoint.toFixed(2)}</p>
+                <p>Total Stake Hold: ${totalStakeHold.toFixed(2)}</p>
+            `;
         }
 
         function addAddresses() {
