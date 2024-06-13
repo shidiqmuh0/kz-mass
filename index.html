@@ -55,6 +55,11 @@
         #credits a:hover {
             text-decoration: underline;
         }
+        #loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
@@ -71,6 +76,9 @@
             <p>Total Stake Hold: 0.00</p>
         </div>
         <div id="address-container"></div>
+        <div id="loading">
+            <p>Loading...</p>
+        </div>
     </div>
 
     <div id="credits">
@@ -104,11 +112,15 @@
 
         async function displayData() {
             const container = document.getElementById('address-container');
+            const loading = document.getElementById('loading');
+            
             container.innerHTML = ''; // Clear previous results
             totalPointBalance = 0; // Reset totals
             totalPointValue = 0;
             totalConvertablePoint = 0;
             totalStakeHold = 0;
+            
+            loading.style.display = 'block'; // Show loading spinner
 
             for (const address of addresses) {
                 const data = await fetchData(address);
@@ -129,12 +141,15 @@
                     totalStakeHold += parseFloat(data.totalStakeHold);
                 }
             }
+            
             document.getElementById('total-points').innerHTML = `
-                <p>Point Balance: ${totalPointBalance.toFixed(2)}</p>
-                <p>Point Value: ${totalPointValue.toFixed(2)}</p>
-                <p>Convertable Point: ${totalConvertablePoint.toFixed(2)}</p>
+                <p>Total Point Balance: ${totalPointBalance.toFixed(2)}</p>
+                <p>Total Point Value: ${totalPointValue.toFixed(2)}</p>
+                <p>Total Convertable Point: ${totalConvertablePoint.toFixed(2)}</p>
                 <p>Total Stake Hold: ${totalStakeHold.toFixed(2)}</p>
             `;
+            
+            loading.style.display = 'none'; // Hide loading spinner
         }
 
         function addAddresses() {
